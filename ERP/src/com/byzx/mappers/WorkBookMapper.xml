@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.WorkBookDao">
+
+	<resultMap type="WorkBook" id="WorkBookResult">
+		<id property="wid" column="wid" />
+		<result property="wname" column="wname" />
+		<result property="delflag" column="delflag" />
+		<result property="remark" column="remark" />
+		<result property="currentTime" column="currentTime" />
+		<result property="updateTime" column="updateTime" />
+		<result property="optionPerson" column="optionPerson" />
+		<collection property="workBookDetail" column="wid"  ofType="workBookDetail" select="com.byzx.dao.WorkBookDetailDao.findAllWorkBookDetail">
+		
+		</collection>
+	</resultMap>
+
+	<select id="findAllWorkBook" parameterType="Map"  resultMap="WorkBookResult">
+		
+		select
+			wid,
+			wname,
+			delflag,
+			remark,
+			currentTime,
+			updateTime,
+			optionPerson
+		from
+		    workbook
+		where
+		    delflag=1
+			<if test="searchValue!=null">
+					and  wname  like '%${searchValue}%'
+			</if>
+            order by currentTime desc
+		    limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	 <select id="findAllWorkBookCount" parameterType="Map" resultType="Integer">
+		
+		  select
+		
+		      count(*)
+		  from
+		      workbook
+		  where
+		      delflag=1
+		<if test="searchValue!=null">
+		
+			  and wname  like '%${searchValue}%'
+	
+		</if>
+
+	</select> 
+	
+	<insert id="addWorkBook"  parameterType="workBook" >
+	insert into 
+	workbook(
+	        wid,
+			wname,
+			delflag,
+			remark,
+			currentTime,
+			updateTime,
+			optionPerson
+	)
+	values(
+	
+	        #{wid},
+			#{wname},
+			#{delflag},
+			#{remark},
+			#{currentTime},
+			#{updateTime},
+			#{optionPerson}
+	
+	)
+	
+
+	</insert>
+<select id="getMaxWorkBookId" resultType="Integer">
+
+     select  max(wid)  from  workbook  where  delflag=1
+</select>
+
+
+<update id="deleteWorkBookAndDetailByWid" parameterType="Integer">
+     update 
+         workbook
+     set
+         delflag=0
+     where
+         wid=#{wid}
+
+
+
+</update>
+
+<update id="updateWorkBook" parameterType="workBook">
+     update
+         workbook
+     set
+        wname=#{wname,jdbcType=VARCHAR},
+        remark=#{remark,jdbcType=VARCHAR},
+        updateTime=#{updateTime,jdbcType=DATE}
+     where
+        wid=#{wid}   
+
+</update>
+	
+<!-- 名称唯一性验证 -->
+ 	<select id="findworkBookwNameExist" resultType="String" parameterType="String">
+  
+  select 
+         wname 
+   from 
+         workbook  
+   where 
+         delflag=0
+    and 
+         wname=#{wname}
+  </select>
+
+
+
+</mapper> 

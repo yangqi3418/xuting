@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.InSupplierAreaDao">
+
+	<resultMap type="InSupplierArea" id="InSupplierAreaResult">
+		<id property="insaid" column="insaid"/>
+		<result property="insaname" column="insaname"/>
+		<result property="insacode" column="insacode"/>
+		<result property="remark" column="remark"/>
+		<result property="state" column="state"/>
+		<result property="delflag" column="delflag"/>
+		<result property="optid" column="optid"/>
+		<result property="optname" column="optname"/>
+		<result property="optdeptid" column="optdeptid"/>
+		<result property="optorgid" column="optorgid"/>
+		<result property="currdate" column="currdate"/>
+		
+	</resultMap>
+	
+	<select id="findInSupplierArea" parameterType="Integer" resultMap="InSupplierAreaResult">
+		select 
+			insaid,
+			insaname,
+			insacode,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+	    from
+		    insupplierarea
+		where
+		    delflag=0
+		    
+		  and insaid=#{insaid}
+	
+	</select>
+	
+	
+	<insert id="addInSupplierArea"  parameterType="InSupplierArea"  >
+	insert  into 
+	 insupplierarea
+	 				(
+			     	insaid,
+					insaname,
+					insacode,
+					remark,
+					state,
+					delflag,
+					optid,
+					optname,
+					optdeptid,
+					optorgid,
+					currdate
+		           )
+	         values(
+			     	#{insaid},
+					#{insaname},
+					#{insacode},
+					#{remark},
+					#{state},
+					#{delflag},
+					#{optid},
+					#{optname},
+					#{optdeptid},
+					#{optorgid},
+					#{currdate}
+	              )
+	
+	
+	</insert>
+
+
+
+
+  
+</mapper> 

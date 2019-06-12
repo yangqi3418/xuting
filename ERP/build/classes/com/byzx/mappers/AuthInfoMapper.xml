@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.AuthInfoDao">
+
+	<resultMap type="AuthInfo" id="AuthInfoResult">
+		<id property="authId" column="authId"/>
+		<result property="authName" column="authName"/>
+		<result property="authPath" column="authPath"/>
+		<result property="parentId" column="parentId"/>
+		<result property="authDescription" column="authDescription"/>
+		<result property="state" column="state"/>
+		<result property="iconCls" column="iconCls"/>
+		<result property="delflag" column="delflag"/>
+		<result property="currentTime" column="currentTime"/>
+		
+	</resultMap>
+	<!-- 通过roleid查询该用户的权限菜单 -->
+	<select id="getAllAuth" parameterType="Map" resultMap="AuthInfoResult">
+		select 
+		      authId,
+		      authName,
+		      authPath,
+		      parentId,
+		      authDescription,
+		      state,
+		      iconCls,
+		      delflag,
+		      currentTime
+		from
+		      auth
+		where  
+		             delflag=0  and
+		              parentId=#{parentId}
+		              and  authId in
+		        <foreach collection="authslist" item="authId" separator="," open="(" close=")">
+		        	#{authId}
+		        </foreach>
+	</select>
+
+
+<select id="getAllAuthByParentId" parameterType="Map" resultMap="AuthInfoResult">
+select 
+    authId,
+    authName,
+    authPath,
+    parentId,
+	authDescription,
+	state,
+	iconCls,
+    delflag,
+    currentTime
+from
+	auth
+where
+     parentId=#{parentId}
+
+</select>
+
+<select id="findAllAuthInfos" parameterType="Integer" resultType="AuthInfo">
+	select
+    	authId,
+   	 	authName,
+   	 	authPath,
+    	parentId,
+		authDescription,
+		state,
+		iconCls,
+    	delflag,
+    	currentTime
+	from
+		auth
+	where 
+    	delflag=0
+		  and  parentId=#{parentId}
+		  		  
+</select>
+
+<!-- 菜单管理加载菜单列表 -->
+
+
+<select id="getAllAuthInfo" resultMap="AuthInfoResult">
+    select
+        authId,
+			authName,
+			authPath,
+			parentId,
+			authDescription,
+			state,
+			iconCls,
+			delflag,
+			currentTime
+    from
+        auth
+    where
+        delflag=0
+         and parentId=#{parentId} 
+</select>
+
+
+<insert id="addAuthInfo"  parameterType="AuthInfo" >
+insert into 
+     auth(
+        authId,
+   	 	authName,
+   	 	authPath,
+    	parentId,
+		authDescription,
+		state,
+		iconCls,
+    	delflag,
+    	currentTime
+)
+   values(
+        #{authId},
+   	 	#{authName},
+   	 	#{authPath},
+    	#{parentId},
+		#{authDescription},
+		#{state},
+		#{iconCls},
+    	#{delflag},
+    	#{currentTime}
+   
+   )
+     
+ 
+</insert>
+
+
+	<!-- 判断当前用户是否有改子节点 -->
+	<select id="hasChildren" parameterType="Map" resultType="Integer">
+			select 
+					 count(*)
+			from 
+				     auth
+			where	
+					 delflag=0
+					 and parentId=#{parentId}
+				and  authId in
+				<foreach collection="authslist" item="authId" separator="," open="(" close=")">
+					#{authId}
+				</foreach>
+	</select>  
+
+<!-- 菜单信息管理 修改菜单信息 -->
+
+
+<update id="updateAuthInfo" parameterType="AuthInfo">
+    update
+        auth
+    set
+        authName=#{authName}, 
+        authDescription=#{authDescription}
+        where 
+        authId=#{authId} 
+</update>
+
+<!-- 菜单信息管理 根据菜单ID删除菜单信息 -->
+
+
+<update id="deleteAuthInfo" parameterType="Integer">
+  update
+       auth
+  set
+       delflag=1
+  where
+       authId=#{authId} 
+    </update>
+    
+    
+    
+    <!-- 角色添加同時修改父節點内容 -->
+     <update id="updateAuthIdByparentId"  parameterType="Integer">
+    update
+          auth
+     set
+          authPath=null
+          
+      where 
+           delflag=0
+      and     authId=#{authId}
+    
+    
+    </update>  
+    
+  
+
+</mapper> 
+
+
+
+
+
+
+
+

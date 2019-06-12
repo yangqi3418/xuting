@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.InsupplierInfoDao">
+
+	<resultMap type="Insupplierinfo" id="InsupplierinfoResult">
+		<id property="insiid" column="insiid" />
+		<result property="insicode" column="insicode" />
+		<result property="insiname" column="insiname" />
+		<result property="inscid" column="inscid" />
+		<result property="inslid" column="inslid" />
+		<result property="insaid" column="insaid" />
+		<result property="insiaddress" column="insiaddress" />
+		<result property="insiphone" column="insiphone" />
+		<result property="insilicense" column="insilicense" />
+		<result property="insipermitlicense" column="insipermitlicense" />
+		<result property="insilegalman" column="insilegalman" />
+		<result property="insitaxnum" column="insitaxnum" />
+		<result property="insibank" column="insibank" />
+		<result property="insibankaccount" column="insibankaccount" />
+		<result property="remark" column="remark" />
+		<result property="state" column="state" />
+		<result property="delflag" column="delflag" />
+		<result property="optid" column="optid" />
+		<result property="optname" column="optname" />
+		<result property="optdeptid" column="optdeptid" />
+		<result property="optorgid" column="optorgid" />
+		<result property="currdate" column="currdate" />
+		
+		 <collection property="inSupplierArea" column="insaid"  ofType="InSupplierArea" select="com.byzx.dao.InSupplierAreaDao.findInSupplierArea">
+		
+		</collection> 
+		<collection property="inSuppliercategory" column="inscid"  ofType="InSuppliercategory" select="com.byzx.dao.InSuppliercategoryDao.findAllSupplierByInscid">
+		
+		</collection> 
+		 <collection property="inSupplierlevel" column="inslid"  ofType="InSupplierlevel" select="com.byzx.dao.InSupplierlevelDao.findInSupplierlevel">
+		
+		</collection> 
+		 <collection property="inSupplierlinkMan" column="insiid"  ofType="InSupplierlinkMan" select="com.byzx.dao.InSupplierlinkManDao.findInSupplierlinkMan">
+		
+		</collection>  
+		
+		
+		
+	</resultMap>
+
+	<select id="findAllInsupplierinfo" parameterType="Map"  resultMap="InsupplierinfoResult">
+		
+		select
+		     insiid,
+			 insicode,
+			 insiname,
+			 inscid,
+			 inslid,
+			 insaid, 
+			 insiaddress, 
+			 insiphone,
+			 insilicense,
+			 insipermitlicense, 
+			 insilegalman,
+			 insitaxnum,
+			 insibank,
+			 insibankaccount,
+			 remark,
+			 state,
+			 delflag,
+			 optid,
+			 optname,  
+			 optdeptid, 
+			 optorgid,
+			 currdate 
+	
+		from
+		    insupplierinfoins
+		where
+		    delflag=0
+			<if test="searchValue!=null">
+					and  insiname  like '%${searchValue}%'
+			</if>
+            order by currdate desc
+		    limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	 <select id="findAllInsupplierCount" parameterType="Map" resultType="Integer">
+		
+		  select
+		
+		      count(*)
+		  from
+		      insupplierinfoins
+		  where
+		      delflag=0
+		<if test="searchValue!=null">
+		
+			  and insiname  like '%${searchValue}%'
+	
+		</if>
+
+	</select> 
+	
+
+	
+	
+	<insert id="addInsupplierinfo" parameterType="Insupplierinfo" >
+	insert into 
+		insupplierinfoins
+				( 
+			     insiid, 
+				 insicode,
+				 insiname,
+				 inscid,
+				 inslid,
+				 insaid,  
+				 insiaddress, 
+				 insiphone,
+				 insilicense,
+				 insipermitlicense, 
+				 insilegalman,
+				 insitaxnum,
+				 insibank,
+				insibankaccount,
+				 remark,
+				 state,
+				 delflag,
+				 optid,
+				 optname,  
+				 optdeptid, 
+				 optorgid, 
+				 currdate 
+				)
+		values(
+		     #{insiid},
+			 #{insicode},
+			 #{insiname},
+		     #{inscid},
+			 #{inslid},
+			 #{insaid},
+			 #{insiaddress}, 
+			 #{insiphone},
+			 #{insilicense},
+			 #{insipermitlicense}, 
+			 #{insilegalman},
+			 #{insitaxnum},
+			 #{insibank},
+		     #{insibankaccount},
+			 #{remark},
+			 #{state},
+			 #{delflag},
+			 #{optid}, 
+			 #{optname},  
+		     #{optdeptid}, 
+			 #{optorgid}, 
+			 #{currdate} 
+	
+	)
+	
+
+	</insert>
+
+<select id="getMaxInsupplierInfoId" resultType="Integer">
+
+     select  max(insiid)  from  insupplierinfoins  where  delflag=0
+</select>
+
+
+<update id="deleteInsupplierinfoByInsiid" parameterType="Integer">
+     update 
+         insupplierinfoins
+     set
+         delflag=1
+     where
+         insiid=#{insiid}
+
+
+
+</update>
+
+
+	<update id="updateInsupplierinfo" parameterType="Insupplierinfo">
+	
+	  update
+	         insupplierinfoins
+	     set
+	        insiname=#{insiname,jdbcType=VARCHAR},
+	        remark=#{remark,jdbcType=VARCHAR},
+	        currdate=#{currdate,jdbcType=DATE}
+	     where
+	        insiid=#{insiid}   
+	
+	
+	</update>
+<!-- 名称验证 -->
+<select id="findIndInsinameNameExist"  parameterType="String"  resultType="String">
+ select 
+         insiname 
+   from 
+         insupplierinfoins  
+   where 
+         delflag=0
+    and 
+         insiname=#{insiname}
+
+
+
+</select>
+<!-- 税号验证 -->
+<select id="findIndInsitaxnumNameExist"   parameterType="String"  resultType="String">
+ select 
+         insitaxnum
+   from 
+         insupplierinfoins  
+   where 
+         delflag=0
+    and 
+         insitaxnum=#{insitaxnum}
+
+
+
+</select>
+<!-- 电话号码验证 -->
+<select id="findIndInsiphoneNameExist" parameterType="String"  resultType="String">
+
+ select 
+         insiphone
+   from 
+         insupplierinfoins  
+   where 
+         delflag=0
+    and 
+         insiphone=#{insiphone}
+
+</select>
+
+</mapper> 

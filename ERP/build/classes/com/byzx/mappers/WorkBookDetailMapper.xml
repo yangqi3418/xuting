@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.WorkBookDetailDao">
+
+	<resultMap type="WorkBookDetail" id="WorkBookDetailResult">
+		<id property="wbdId" column="wbdId"/>
+		<result property="wid" column="wid"/>
+		<result property="wbdName" column="wbdName"/>
+		<result property="remark" column="remark"/>
+		<result property="delflag" column="delflag"/>
+		<result property="currentTime" column="currentTime"/>
+		<result property="updateTime" column="updateTime"/>
+		<result property="optionPerson" column="optionPerson"/>
+		
+	</resultMap>
+	
+	<select id="findAllWorkBookDetail" parameterType="Integer" resultMap="WorkBookDetailResult">
+		select 
+			wbdId,
+			wid,
+			wbdName,
+			remark,
+			delflag,
+			currentTime,
+			updateTime,
+			optionPerson
+	    from
+		    workbookdetail
+		where
+		    delflag=1
+		    and    
+		    wid=#{wid}
+	
+	</select>
+	
+	<insert id="addworkBookDetail"  parameterType="workBookDetail"  >
+	insert  into 
+	 workbookdetail(
+	        wbdId,
+			wid,
+			wbdName,
+			remark,
+			delflag,
+			currentTime,
+			updateTime,
+			optionPerson
+	)
+	values(
+	        #{wbdId},
+			#{wid},
+			#{wbdName},
+			#{remark},
+			#{delflag},
+			#{currentTime},
+			#{updateTime},
+			#{optionPerson}
+	
+	)
+	
+	</insert>
+	
+	<update id="deleteDetailByWid"  parameterType="Integer" >
+	 update 
+         workbookdetail
+     set
+         delflag=0
+     where
+         wid=#{wid}
+	
+	
+	</update>
+	
+<update id="deleteDetailByWbdId" parameterType="Integer">
+     update
+         workbookdetail
+     set
+        delflag=0
+     where
+        wbdId=#{wbdId}
+
+
+</update>
+
+
+<update id="updateWorkBookDetail"  parameterType="workBookDetail">
+    update 
+
+     workbookdetail 
+    set
+	
+	    wbdName=#{wbdName,jdbcType=VARCHAR},
+	    remark=#{remark,jdbcType=VARCHAR},
+        updateTime=#{updateTime,jdbcType=DATE}
+    where
+         wbdId=#{wbdId}
+	
+
+</update>
+
+<select id="getAllWorkBookDetailByWid" parameterType="Integer" resultType="WorkBookDetail">
+   select 
+			wbdId,
+			wid,
+			wbdName,
+			remark,
+			delflag,
+			currentTime,
+			updateTime,
+			optionPerson
+	    from
+		    workbookdetail
+		where
+		    delflag=1
+		    and    
+		    wid=#{wid}
+
+
+</select>
+
+
+
+  
+</mapper> 

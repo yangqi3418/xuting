@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.InDeliveryWayDao">
+
+	<resultMap type="InDeliveryWay" id="InDeliveryWayResult">
+		<id property="indwid" column="indwid"/>
+		<result property="indwcode" column="indwcode"/>
+		<result property="indwname" column="indwname"/>
+		<result property="remark" column="remark"/>
+		<result property="state" column="state"/>
+		<result property="delflag" column="delflag"/>
+		<result property="optid" column="optid"/>
+		<result property="optname" column="optname"/>
+		<result property="optdeptid" column="optdeptid"/>
+		<result property="optorgid" column="optorgid"/>
+		<result property="currdate" column="currdate"/>
+		
+		
+	</resultMap>
+	
+	<!-- 交付查找 -->
+  <select id="findAllInDeliveryWay"  parameterType="Map" resultType="InDeliveryWay">
+	   select
+			 indwid,
+			 indwcode,
+			 indwname,
+			 remark,
+			 state,
+			 delflag,
+			 optid,
+			 optname,
+			 optdeptid,
+			 optorgid,
+			 currdate
+	  from
+	      indeliveryway
+	  where
+	      delflag=0
+	 
+	     
+	      <if test="indwname!=null">
+	      		and indwname like '%${indwname}%'
+	      </if>
+	           order by currdate desc  
+               limit #{pagebean.start},#{pagebean.rows}
+  
+  </select>
+  <!-- 交付方式分頁 -->
+  <select id="findAllInDeliveryWayCount"  resultType="Integer"  parameterType="Map">
+  
+        select count(*) from indeliveryway where delflag=0
+        
+         <if test="indwname!=null">
+	      		and indwname like '%${indwname}%'
+	      </if>
+	     
+  
+  </select>
+  <!-- 交付方式添加 -->
+  <insert id="addInDeliveryWay" parameterType="InDeliveryWay" >
+	     insert into 
+	         indeliveryway
+	         
+				      (  indwid,
+			             indwcode,
+						 indwname,
+						 remark,
+						 state,
+						 delflag,
+						 optid,
+						 optname,
+						 optdeptid,
+						 optorgid,
+						 currdate
+						)
+				values(
+				         #{indwid},
+			             #{indwcode},
+						 #{indwname},
+						 #{remark},
+						 #{state},
+						 #{delflag},
+						 #{optid},
+						 #{optname},
+						 #{optdeptid},
+						 #{optorgid},
+						 #{currdate}
+						 )						
+	
+	</insert>
+  <!-- 交付修改 -->
+   <update id="updateInDeliveryWay" parameterType="InDeliveryWay">
+    update 
+    
+        indeliveryway 
+   set 
+     
+      
+	    indwcode=#{indwcode},
+		indwname=#{indwname},
+		remark=#{remark}
+		
+	
+   where
+   
+        indwid=#{indwid}
+  
+  
+  </update>
+  <!-- 編碼唯一性 -->
+  <select id="findInsccodeNameExist" resultType="String" parameterType="String">
+  
+  select 
+         indwcode 
+   from 
+         indeliveryway  
+   where 
+         delflag=0
+    and 
+         indwcode=#{indwcode}
+  </select>
+  <!-- 名称唯一性 -->
+  	<select id="findIndwnameNameExist" resultType="String" parameterType="String">
+  
+  select 
+         indwname 
+   from 
+         indeliveryway  
+   where 
+         delflag=0
+    and 
+         indwname=#{indwname}
+  </select>
+  
+  <!-- 交付类型删除 -->
+  
+   <update id="deleteInDeliveryWay" parameterType="String">
+  update 
+      indeliveryway 
+  set 
+       delflag=1 
+  where indwid=#{id}
+  
+  </update>
+  
+  
+</mapper> 

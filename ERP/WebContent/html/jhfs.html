@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>交货方式</title>
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+	
+	<script type="text/javascript">
+	
+	var addUrl="../inDeliveryWay/addInDeliveryWay.do";
+	var updateUrl="../inDeliveryWay/updateInDeliveryWay.do";
+	var url="";
+
+	
+	
+	//搜索按钮
+	function searchInDeliveryWay() {
+     
+		$("#dg").datagrid("load", {
+			indwname:$("#indwname").val()
+		
+			
+		});
+
+	}
+	
+	//创建一个弹窗关闭事件，当关闭时清楚表单
+	$(function(){
+		$('#dlg').dialog({
+		    onClose:function(){
+		     	$("#fm").form("clear");
+		    }
+	    });
+	});
+	
+	
+	//打开交付方式按钮
+	function openInDeliveryWayAddDialog(){
+		alert(1);
+		$("#dlg").dialog("open").dialog("setTitle","交付方式添加");
+		 url=addUrl;
+	}
+	
+	//打开交付方式修改按钮
+	function   openInDeliveryWayModifyDialog(){
+		var  rows=$("#dg").datagrid("getSelections");
+		if(rows.length!=1){
+			$.messager.alert("提示信息","请选择一条你要修改的数据","info")
+			return false;
+		}
+		$("#dlg").dialog("open").dialog("setTitle","交付方式修改");
+		$("#fm").form("load",rows[0]);
+		url=updateUrl;
+		
+		
+		
+	}
+	
+	//添加修改保存按钮
+	function saveInDeliveryWay(){
+		$("#fm").form("submit",{
+			         url:url,
+			onSubmit:function(){
+				return $(this).form("validate");
+			},
+			
+			success:function(result){
+				 var result = eval('(' + result + ')'); 
+				if(result.msg){
+					$.messager.alert("系统提示","保存成功！","info");
+					$("#fm").form("clear");
+					$("#dlg").dialog("close");
+					$("#dg").datagrid("reload");
+				}else{
+					$.messager.alert("系统提示","保存失败！","error");
+					$("fm").form("clear");
+				}
+				url=""; 
+			}
+			 
+		});
+	}
+	//关闭按钮
+	function closeInDeliveryWayAddDialog(){
+		$("fm").form("clear");
+		$("#dlg").dialog("close");
+	}
+			
+//交付类型删除
+	function  openInDeliveryWayDeleteDialog(){
+		var rows=$("#dg").datagrid("getSelections");
+		if(rows.length<1){
+			$.messager.alert("提示信息","请选中你要修改的数据！","info");
+			return false;
+		}
+
+		$.messager.confirm("提示信息","你确定要删除这<font color='red'>"+rows.length+"<font>条数据吗？",function(r){
+			
+			if(r){
+				var ids=[];
+				$.each(rows,function(index,row){
+					ids.push(row.indwid);       //将选中行id拖进ids里
+		
+				});
+				var ides=ids.join(",");  //解析json对象数组，用“,”隔开
+				$.ajax({
+					type:"post",
+					url:"../inDeliveryWay/deleteInDeliveryWay.do",
+					dataType:"json",
+					data:{ids:ides},
+					success:function(result){
+						
+						if(result.msg){
+							$.messager.alert("提示信息","成功删除<font color='red'>"+result.count+"</font>条数据","info");
+							$("#dg").datagrid("reload");
+						}else{
+							$.messager.alert("提示信息","系统繁忙,请稍后执行！","info");
+						}
+					}
+					
+				});
+			}
+			
+		});
+		
+		
+	}
+	
+	
+	
+	
+	
+	</script>
+	
+	
+</head>
+<body style="margin: 1px;">
+<!-- 采购管理交货方式界面加载列表 -->
+	<table id="dg" title="交货方式类别管理" class="easyui-datagrid" fitColumns="true"
+		pagination="true" rownumbers="true" url="../inDeliveryWay/findAllInDeliveryWay.do"
+		fit="true" toolbar="#tb" data-options="emptyMsg:'<font>无数据<font>'" modal="true">
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center"></th>
+				<th field="indwid" width="50" align="center">编号</th>
+				<th field="indwcode" width="50" align="center">編碼</th>
+				<th field="indwname" width="50" align="center">交付名称</th>
+				<th field="remark" width="50" align="center" hidden="true">备注</th>
+				
+			</tr>
+		</thead>
+	</table>
+	
+	<!-- 采购管理交货管理界面 增删改工具按钮 -->
+	<div id="tb">
+		<div>
+			<a onclick="openInDeliveryWayAddDialog()" class="easyui-linkbutton"
+				iconCls="icon-add" plain="true">添加</a> <a
+				href="javascript:openInDeliveryWayModifyDialog()" class="easyui-linkbutton"
+				iconCls="icon-edit" plain="true">修改</a> <a
+				href="javascript:openInDeliveryWayDeleteDialog()" class="easyui-linkbutton"
+				iconCls="icon-remove" plain="true">删除</a>
+		</div>
+		
+		<!-- 交货方式类别管理界面 交货名称查询 -->
+		<div>
+			&nbsp;类别名称：&nbsp;<input type="text" name="indwname" id="indwname" size="20" onkeydown="if(event.keyCode==13) searchInDeliveryWay()" />
+			
+			<a href="javascript:searchInDeliveryWay()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		</div>
+	</div>
+	<!-- 交货方式添加数据表格 -->
+	<div id="dlg" class="easyui-dialog"
+		style="width: 570px; height: 350px; padding: 10px 20px" closed="true"
+		buttons="#dlg-buttons">
+		<form id="fm" method="post">
+			<table cellspacing="5px">
+				<p>
+					<input type="hidden" id="indwid" name="indwid" />
+				</p>
+				<tr>
+					<td>类别名称：</td>
+					<td><input type="text" id="indwname" name="indwname"  
+						class="easyui-validatebox" required="true" /></td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				</tr>
+				<tr>
+					<td>编码：</td>
+					<td><input type="text" id="indwcode" name="indwcode"  
+						class="easyui-validatebox" required="true" /></td>
+				</tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="4"><textarea rows="7" cols="50"
+							name="remark" id="remark"></textarea></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<!-- 添加支付方式保存和关闭按钮 -->
+	<div id="dlg-buttons">
+	      <a href="javascript:saveInDeliveryWay()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeInDeliveryWayAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	
+	
+</body>
+
+<script type="text/javascript">
+
+$("#indwname").blur(function(){
+	var indwname=$("#indwname").val();
+	
+	$.ajax({
+		url:"../inDeliveryWay/findIndwnameNameExist.do",
+		data:{indwname:indwname},
+		type:"post",
+		dataType:"json",
+		success:function(result){
+			if(result.msg){
+				$.messager.alert("提示信息","该名称已存在,请重新输入","warning");
+				$("indwname").val("");
+			}
+		}
+	}); 
+	
+});
+
+
+$("#indwcode").blur(function(){
+	var insccode=$("#indwcode").val();
+	
+	$.ajax({
+		url:"../inDeliveryWay/findIndwcodeNameExist.do",
+		data:{indwcode:indwcode},
+		type:"post",
+		dataType:"json",
+		success:function(result){
+			if(result.msg){
+				$.messager.alert("提示信息","该编码已存在,请重新输入","warning");
+				$("indwcode").val("");
+			}
+		}
+	}); 
+	
+});
+
+
+
+</script>
+
+
+
+
+</html>

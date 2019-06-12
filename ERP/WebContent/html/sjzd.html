@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>数据字典</title>
+<link rel="stylesheet" type="text/css"
+	href="../jquery-easyui-1.6.6/themes/default/easyui.css" />
+<link rel="stylesheet" type="text/css"
+	href="../jquery-easyui-1.6.6/themes/icon.css" />
+<script type="text/javascript"
+	src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+<script type="text/javascript"
+	src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+
+<script type="text/javascript">
+var  addUrl="../workBook/addWorkBook.do";
+var  updateUrl="../workBook/updateWorkBook.do";
+var  curUrl="";
+
+
+	//FORM表单序列化转对象
+	 	function serializeObject(form) {
+	 var o = {};
+	 $.each(form.serializeArray(), function(index) {
+	 if (o[this['name']]) {
+	 o[this['name']] = o[this['name']] + "," + this['value'];
+	 } else {
+	 o[this['name']] = this['value'];
+	 }
+	 });
+	 return o;
+	 }
+	 
+//加载编辑框和字表信息
+	$(function() {
+		init();
+		$("#dg").datagrid({
+
+			onLoadSuccess : function(data) { //当加载成功后触发
+				$("#dg").datagrid("selectRow", 0);//选中第一行
+				var row = $("#dg").datagrid("getSelected");
+				
+				$("#workBookEditForm").form("load", row);
+				$("#dgDetail").datagrid("loadData", row.workBookDetail);
+			
+				
+			},
+
+			onClickRow : function(index, row) { //当单击一行数据时触发
+				$("#workBookEditForm").form("load", row);
+				$("#dgDetail").datagrid("loadData", row.workBookDetail);
+
+				/* $.ajax({
+					url:"../workBookDetail/findAllworkBookDetail.do",
+					type:"post",
+					dataType:"json",
+					data:{wid:row.wid},
+					success:function(result){
+						$("#dgDetail").datagrid("loadData",result);
+					}
+				}); */
+
+			}
+
+		});
+	});
+//查询名称
+	function search() {
+
+		$("#dg").datagrid("load", {
+			searchValue : $("#searchValue").val()
+		});
+
+	}
+//初始化
+	function init() {
+		$("#workBookManager_savebtn").linkbutton({disabled : true});//主表界面保存按钮关闭
+		
+		$("#workBookManager_canclebtn").linkbutton({disabled : true});//主表界面取消按钮关闭
+		
+		$("#workBookDeatilAdd").linkbutton({disabled : true}); //字表界面添加按钮关闭
+		
+		$("#workBookDeatilUpdate").linkbutton({disabled : true}); //字表界面修改按钮关闭
+		
+		$("#workBookDeatilDel").linkbutton({disabled : true}); //字表界面删除按钮关闭
+		
+		$("#workBookDeatilSav").linkbutton({disabled : true}); //字表界面保存按钮关闭
+		
+		$("#workBookEditForm").form("disableValidation"); //编辑框非空验证关闭
+
+		$("#workBookEditForm :input").attr("disabled", "disabled");//   编辑框不可编辑
+		$("#workBookManager_editbtn").linkbutton({disabled : false}); //主表修改按钮开启
+		$("#workBookManager_delbtn").linkbutton({disabled : false}); //主表删除按钮开启
+		$("#workBookManager_newbtn").linkbutton({disabled : false}); //主表新建按钮开启
+
+	}
+//新建按钮
+	function newWorkBookInfo() {
+		$("#workBookManager_editbtn").linkbutton({disabled : true}); //主表修改按钮关闭
+		
+		$("#workBookManager_delbtn").linkbutton({disabled : true}); //主表删除按钮关闭
+		
+		$("#workBookManager_savebtn").linkbutton({disabled : false}); //主表保存按钮开起
+		
+		$("#workBookManager_canclebtn").linkbutton({disabled : false}); //主表取消按钮开起
+		
+		$("#workBookDeatilAdd").linkbutton({disabled : false});//放开字表按钮  可点击添加
+		
+		$("#workBookDeatilUpdate").linkbutton({disabled : false});//放开字表按钮  可点击修改
+		
+		$("#workBookDeatilDel").linkbutton({disabled : false});//放开字表按钮  可点击删除
+		
+		$("#workBookDeatilSav").linkbutton({disabled : false});//放开字表按钮  可点击保存
+		
+		$("#workBookEditForm :input").removeAttr("disabled", "disabled");//移除不可编辑
+
+		$("#workBookEditForm").form("clear");//  清空编辑框
+
+		$("#workBookEditForm").form("enableValidation");//开启非空验证编辑框 
+
+		$("#dgDetail").datagrid("loadData", {  //清空子列表
+
+			total : 0,
+			rows : []
+
+		});
+
+	$("dg").datagrid("unselectAll");  //取消选中所有
+	
+	    curUrl=addUrl;
+
+	}
+	
+	function  cancleworkBook(){   // 主表取消按钮
+		init();
+		
+	}
+	
+	
+//保存按钮
+	function saveForm() {
+		var form=$("#workBookEditForm");//定义一个form表单
+		var workBook=serializeObject(form);//序列化表单
+		var workBookDetail = $("#dgDetail").datagrid("getRows");//获得字表所有内容
+
+		if (workBookDetail) {
+			workBook.workBookDetail=workBookDetail;
+		}
+
+		$.ajax({
+			url :curUrl ,
+			type : "post",
+			dataType : "json",
+			data : JSON.stringify(workBook),
+			contentType : 'application/json;charset=UTF-8',
+			
+			success : function(result) {
+				if (result.msg) {
+					$.messager.alert("提示信息", "保存成功！", "info");
+					$("#dg").datagrid("reload");
+					init();
+				} else {
+					$.messager.alert("提示信息", "保存失败！", "info");
+
+				}
+			},
+			error : function() {
+				$.messager.alert("提示信息", "系统繁忙！", "error");
+			}
+		});
+		    curUrl="";
+
+	}
+	
+	
+	
+	//字表添加按钮
+	function  wbDetailManager(){
+		$("#dgDetail").datagrid("appendRow",{});//追加新一行在下面
+		var index=$("#dgDetail").datagrid("getRows").length - 1;//获取当前一行下标
+		$("#dgDetail").datagrid("beginEdit",index);//开启逐行行编辑
+	}
+	
+	//点击字表保存按钮
+	function saveWb_detail(){
+		var rows=$("#dgDetail").datagrid("getRows");//获取当前行
+		$.each(rows,function(index,row){
+			$("#dgDetail").datagrid("endEdit",index); //关闭逐行编辑
+		
+		});
+		$("#workBookManager_savebtn").linkbutton({disabled :false});//开起主表保存按钮
+		
+		
+	}
+	//删除主表及子表数据(逻辑删除)
+	function delworkBook(){
+		var row=$("#dg").datagrid("getSelected");
+		if(row==null){
+			$.messager.alert("提示信息","請選中一行需要刪除的數據","info");
+			return;
+			
+		}
+		var wid=row.wid;
+		$.messager.confirm("提示信息","你確認要刪除這<font color='red'>"+row.wname+"</font>及子表吗？",function(r){
+			if(r){
+				
+			$.ajax({
+				url:"../workBook/deleteWorkBookAndDetailByWid.do",
+				type:"post",
+				dataType:"json",
+				data:{wid:wid},
+				success:function(result){
+					if(result.msg){
+						$.messager.alert("提示信息","删除<font color='red'>"+row.wname+"</font>及子表成功！","info");
+						$("#dg").datagrid("reload");
+						init();
+					}else{
+						$.messager.alert("提示信息","删除<font color='red'>"+row.wname+"</font>及子表失败！","info");
+						
+					}
+					
+				},
+				error:function(){
+					$.messager.alert("提示信息","系统繁忙，请稍后再试！");
+					
+				}
+				
+				
+			});
+			}
+		});
+	}
+	//修改主表
+	function editworkBook(){
+		
+       
+		$("#workBookDeatilAdd").linkbutton({disabled : false}); //字表界面添加按钮开启
+		
+		$("#workBookDeatilUpdate").linkbutton({disabled : false}); //字表界面修改按钮开启
+		
+		$("#workBookDeatilDel").linkbutton({disabled : false}); //字表界面删除按钮开启
+		
+		$("#workBookDeatilSav").linkbutton({disabled : false}); //字表界面保存按钮开启
+		
+		
+		$("#workBookManager_canclebtn").linkbutton({disabled : false});//放开主表取消按鈕，可点击取消
+		$("#workBookManager_newbtn").linkbutton({disabled : true});//关闭主表新建按钮，
+		$("#workBookManager_delbtn").linkbutton({disabled : true});//关闭主表删除按钮，
+		
+		$("#workBookEditForm:input").removeAttr("disabled", "disabled");//移除不可编辑
+		$("#workBookEditForm").form("enableValidation");//开启非空验证编辑框 
+		curUrl=updateUrl;
+
+	}
+	//主细表修改
+	function wbDetailModify(){
+		
+		var detailRows=$("#dgDetail").datagrid("getSelections");
+		if(detailRows.length<1){
+			$.messager.alert("提示信息","请选中你要修改的数据！","warning");
+			return;
+		}
+		$.each(detailRows,function(index,row){
+			var rownumber=$("#dgDetail").datagrid("getRowIndex",row);
+			
+			$("#dgDetail").datagrid("beginEdit",rownumber);//开启行编辑
+			
+			
+		});
+	}
+	//字表删除
+	function wbDetailDelete(){
+		var detailRows=$("#dgDetail").datagrid("getSelections");
+		if(detailRows.length<1){
+			$.messager.alert("提示信息","请选中你要删除的数据！","warning");
+			return;
+		}
+		$.each(detailRows,function(index,row){
+			var rownumber=$("#dgDetail").datagrid("getRowIndex",row);//获取这一行的角标
+			
+			$("#dgDetail").datagrid("deleteRow",rownumber);//删除一行
+			
+			
+		});
+		
+	}
+	
+</script>
+
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'"
+			style="height: 32px; background-color: #E0ECFF; width: 1235px; background-position: initial initial; background-repeat: initial initial;">
+			<div style="float: right; padding-right: 20px">
+				名称: <input class="easyui-validatebox" style="width: 80px"
+					name="searchValue" id="searchValue"> <a
+					href="javascript:search()" class="easyui-linkbutton"
+					iconCls="icon-search">查询</a>
+			</div>
+			<div>
+				<a id="workBookManager_newbtn" href="javascript:newWorkBookInfo()"
+					class="easyui-linkbutton" iconCls="icon-add" plain="true">新建</a> <a
+					id="workBookManager_editbtn" href="javascript:editworkBook()"
+					class="easyui-linkbutton" iconCls="icon-edit" plain="true">修改</a> <a
+					id="workBookManager_delbtn" href="javascript:delworkBook()"
+					class="easyui-linkbutton" iconCls="icon-remove" plain="true">删除</a>
+				<a id="workBookManager_savebtn" href="javascript:saveForm()"
+					class="easyui-linkbutton" iconCls="icon-save" plain="true">保存</a> <a
+					id="workBookManager_canclebtn" href="javascript:cancleworkBook()"
+					class="easyui-linkbutton" iconCls="icon-cancel" plain="true">取消</a>
+			</div>
+		</div>
+		<div data-options="region:'west',split:true" style="width: 375px;">
+			<div class="easyui-layout" data-options="fit:true">
+				<div data-options="region:'center'">
+					<table id="dg" title="数据字典主表全部列表" class="easyui-datagrid"
+						fitColumns="true" pagination="true" rownumbers="true"
+						url="../workBook/findAllWorkBook.do" fit="true"
+						singleSelect="true">
+						<thead>
+							<tr>
+								<th field="wname" width="50" align="center"
+									data-options="sortable:true">名称</th>
+								<th field="currentTime" width="50" align="center"
+									sortable="true">创建时间</th>
+								<th field="remark" width="50" align="center">备注</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'"">
+			<div id="tab_show" align="center"
+				style="height: 120px; background-color: #F7F7F7; margin-top: -16px">
+				<h3 align="center">编辑框</h3>
+				<form id="workBookEditForm">
+					<input type="hidden" name="wid" id="wid" />
+					<table>
+						<tr>
+							<td><label>名称：</label></td>
+							<td><input class="easyui-validatebox" type="text" id="wname"
+								name="wname" data-options="required:true" maxlength="20"
+								width="200px" /></td>
+						</tr>
+						<tr>
+							<td><label>备注：</label></td>
+							<td><input class="easyui-validatebox" type="text"
+								id="remark" name="remark" data-options="required:true"
+								maxlength="200" width="200px" height="400px" /></td>
+						</tr>
+					</table>
+				</form>
+			</div>
+
+			<div style="clear: both;"></div>
+			<div class="easyui-tabs" style="height: 382px; margin-top: -16px;">
+				<div title="数据字典子表信息列表" fit="true" data-options="border:true">
+					<table id="dgDetail" class="easyui-datagrid" fitColumns="true"
+						pagination="true" rownumbers="true" fit="true" toolbar="#tb">
+						<thead>
+							<tr>
+								<th field="cb" checkbox="true" align="center"></th>
+								<th field="wbdName" width="50" align="center"
+									data-options="editor:{type:'validatebox',options:{
+									disabled:false,required: true}}">名称</th>
+								<th field="currentTime" width="50" align="center">创建时间</th>
+								<th field="remark" width="50" align="center"
+									data-options="editor:{type:'validatebox',options:{
+									disabled:false}}">备注</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="tb">
+						<div>
+							<a href="javascript:wbDetailManager()" class="easyui-linkbutton"
+								iconCls="icon-add" plain="true" id="workBookDeatilAdd">添加</a> <a
+								href="javascript:wbDetailModify()" class="easyui-linkbutton"
+								iconCls="icon-edit" plain="true" id="workBookDeatilUpdate">修改</a>
+							<a href="javascript:wbDetailDelete()" class="easyui-linkbutton"
+								iconCls="icon-remove" plain="true" id="workBookDeatilDel">删除</a>
+							<a href="javascript:saveWb_detail()" class="easyui-linkbutton"
+								iconCls="icon-save" plain="true" id="workBookDeatilSav">保存</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+
+$("#wname").blur(function(){
+	var wname=$("#wname").val();
+	
+	$.ajax({
+		url:"../workBook/findworkBookwNameExist.do",
+		data:{wname:wname},
+		type:"post",
+		dataType:"json",
+		success:function(result){
+			if(result.msg){
+				$.messager.alert("提示信息","该名称已存在,请重新输入","warning");
+				$("wname").val("");
+			}
+		}
+	}); 
+	
+});
+
+
+
+
+
+
+
+
+</script>
+</html>

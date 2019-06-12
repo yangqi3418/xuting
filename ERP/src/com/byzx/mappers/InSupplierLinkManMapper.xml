@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.InSupplierlinkManDao">
+
+	<resultMap type="InSupplierlinkMan" id="InSupplierlinkManResult">
+		<id property="inslmid" column="inslmid" />
+		<result property="inslmcode" column="inslmcode" />
+		<result property="inslname" column="inslname" />
+		<result property="insiid" column="insiid" />
+		<result property="inslmname" column="inslmname" />
+		<result property="inslmphone" column="inslmphone" />
+		<result property="remark" column="remark" />
+		<result property="state" column="state" />
+		<result property="delflag" column="delflag" />
+		
+		
+	</resultMap>
+<!-- 查询所有 -->
+	<select id="findInSupplierlinkMan" parameterType="Integer"  resultMap="InSupplierlinkManResult">
+		
+		select
+			inslmid,
+			inslmcode,
+			insiid,
+			inslmname,
+			inslmphone,
+			remark,
+			state,
+			delflag
+		
+		from
+		    insupplierlinkman
+		where
+		    delflag=0
+			and  insiid=#{insiid}
+	</select>
+	<!-- 添加 -->
+<insert id="addInSupplierlinkMan"  parameterType="InSupplierlinkMan"  >
+	insert  into 
+	    insupplierlinkman(
+	               	inslmid,
+					inslmcode,
+					insiid,
+					inslmname,
+					inslmphone,
+					remark,
+					state,
+					delflag
+	                 )
+	             values(
+			            #{inslmid},
+				        #{inslmcode},
+					    #{insiid},
+					    #{inslmname},
+						#{inslmphone},
+						#{remark},
+						#{state},
+						#{delflag}
+	                 )
+	
+  </insert>
+  
+  
+	    <update id="deleteInSupplierlinkManByinslmid" parameterType="Integer">
+		     update
+		         insupplierlinkman
+		     set
+		        delflag=1
+		     where
+		        inslmid=#{inslmid}
+
+
+        </update>
+  <!-- 字表查询byid -->
+  <select id="getAllInsupplierinfoDetailByInsiid" parameterType="Integer" resultMap="InSupplierlinkManResult">
+  
+  select
+			inslmid,
+			inslmcode,
+			insiid,
+			inslmname,
+			inslmphone,
+			remark,
+			state,
+			delflag
+		
+		from
+		    insupplierlinkman
+		where
+		    delflag=0
+			and  insiid=#{insiid}
+  
+  </select>
+  
+  
+  <update id="deleteinSupplierlinkManByInslmid" parameterType="Integer" >
+   update
+		         insupplierlinkman
+		     set
+		        delflag=1
+		     where
+		        inslmid=#{inslmid}
+
+  
+  
+  </update>
+  
+  
+  <update id="updateInSupplierlinkManDetail"  parameterType="InSupplierlinkMan">
+  
+	    update 
+	
+	          insupplierlinkman 
+	    set
+		
+		    inslmname=#{inslmname,jdbcType=VARCHAR},
+		    remark=#{remark,jdbcType=VARCHAR}
+	       
+	    where
+	         inslmid=#{inslmid}
+	
+  
+  
+  </update>
+  
+  
+  <insert id="addInSupplierlinkMankDetail" parameterType="InSupplierlinkMan">
+  
+  insert  into 
+	    insupplierlinkman(
+	               	inslmid,
+					inslmcode,
+					insiid,
+					inslmname,
+					inslmphone,
+					remark,
+					state,
+					delflag
+	                 )
+	             values(
+			            #{inslmid},
+				        #{inslmcode},
+					    #{insiid},
+					    #{inslmname},
+						#{inslmphone},
+						#{remark},
+						#{state},
+						#{delflag}
+	                 )
+	
+  
+  
+  </insert>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+</mapper> 

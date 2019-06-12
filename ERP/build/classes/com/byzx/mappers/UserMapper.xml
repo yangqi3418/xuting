@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.UserInfoDao">
+
+	<resultMap type="UserInfo" id="UserInfoResult">
+		<id property="uid" column="uid"/>
+		<result property="uname" column="uname"/>
+		<result property="password" column="password"/>
+		<result property="userType" column="userType"/>
+		<result property="roleId" column="roleId"/>
+		<result property="userDescription" column="userDescription"/>
+		<result property="delflag" column="delflag"/>
+		<result property="roleName" column="roleName"/>
+		
+	</resultMap>
+	
+	<select id="login" parameterType="UserInfo" resultMap="UserInfoResult">
+		select 
+		     u.uid,
+		     u.uname,
+		     u.password,
+		     u.userType,
+		     u.roleId,
+		     u.userDescription,
+		     u.delflag,
+		     u.currentTime,
+		     r.roleName   
+		        from
+		                 user u
+		          inner join  		            
+		                 role  r
+		              on  u.roleId=r.roleId 
+		              
+		        where  
+		             u.delflag=0 and u.uname=#{uname} and u.password=#{password}
+	</select>
+  <select id="findAllUserInfos"  resultMap="UserInfoResult" parameterType="Map">
+	select
+	       u.uid,
+	       u.uname,
+	       u.password,
+	       u.userType,
+	       u.roleId,
+	       u.userDescription,
+	       u.delflag,
+	       r.roleName,
+	       u.currentTime
+	from
+	      user u
+	inner join
+	     role r
+	on 
+	     u.roleId=r.roleId
+
+	where
+	      u.delflag=0 
+	      <if test="userInfo.roleId!=0">
+	      		and u.roleId=#{userInfo.roleId}
+	      </if>
+	      <if test="userInfo.uname!=null||userInfo.roleId!=''">
+	      		and u.uname like '%${userInfo.uname}%'
+	      </if>
+	          order by u.currentTime desc  
+             limit #{pageBean.start},#{pageBean.rows}
+  
+  </select>
+  <select id="findAllUserInfoCount"  resultType="Integer"  parameterType="Map">
+  
+        select count(*) from user where delflag=0
+         <if test="userInfo.RoleId!=null and userInfo.RoleId!=''">
+	      and
+	           roleId=#{userInfo.roleId}
+	      
+	      </if>
+	      <if test="userInfo.uname!=null and userInfo.uname!=''">
+	      and 
+	          uname like '%${userInfo.uname}%'
+	      </if>
+  
+  </select>
+  
+  <select id="findUserNameExist" resultType="String" parameterType="String">
+  
+  select 
+         uname 
+   from 
+         user  
+   where 
+         delflag=0
+    and 
+         uname=#{uname}
+  </select>
+  <insert id="addUserInfo" parameterType="UserInfo">
+  insert into 
+               user 
+               (uid,
+                uname,
+                password,
+                userType,
+                roleId,
+                userDescription,
+                delflag,
+                currentTime)
+            values(
+                #{uid},
+                #{uname},
+                #{password},
+                #{userType},
+                #{roleId},
+                #{userDescription},
+                #{delflag},
+                #{currentTime}
+              )
+ 
+  
+  </insert>
+  
+  <update id="updateUserInfo"  parameterType="UserInfo">
+	  update 
+	        user 
+	  set 
+	     
+	        uname=#{uname},
+	        password=#{password},
+	        roleId=#{roleId},
+	        userDescription=#{userDescription}
+	   where
+	       uid=#{uid}
+        
+  </update>
+  
+  <update id="deleteUserInfo" parameterType="String">
+  update 
+      user 
+  set 
+       delflag=1 
+  where uid=#{id}
+  
+  </update>
+  
+</mapper> 

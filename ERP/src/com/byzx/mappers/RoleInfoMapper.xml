@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.RoleInfoDao">
+
+	<resultMap type="RoleInfo" id="RoleInfoResult">
+		<id property="roleId" column="roleId"/>
+		<result property="roleName" column="roleName"/>
+		<result property="authIds" column="authIds"/>
+		<result property="roleDescription" column="roleDescription"/>
+		<result property="delflag" column="delflag"/>
+		
+	</resultMap>
+	<!-- 通过roleid查询该用户的权限菜单 -->
+	<select id="findAuthIdByRoleId" parameterType="Integer" resultType="String">
+		select 
+		authIds 
+		        from
+		                role
+
+		        where  
+		             roleId=#{roleId}
+	</select>
+	<select id="roleComboxList"  resultType="RoleInfo">
+	select 
+	     roleId,
+	     roleName
+	 from
+	      role 
+	
+	     where delflag=0
+	</select>
+	
+	<select id="findAllRole" parameterType="Map" resultType="RoleInfo">
+	select
+	     roleId,
+	     roleName,
+	     authIds,
+	     roleDescription,
+	     delflag,
+	     currentTime
+	from
+	     role
+	where 
+	     delflag=0
+	     <if test="s_roleName!=null">
+	     and  roleName  like '%${s_roleName}%'
+	     </if>
+	     limit #{pageBean.start},#{pageBean.rows}
+	</select>
+<select id="findAllRoleCount" resultType="Integer" 	parameterType="Map">
+
+	select 
+	   count(*)  
+	 from 
+	    role 
+	  where delflag=0
+	  
+	   <if test="uname!=null ">
+	      and  roleName like '%${s_roleName}%'
+	    </if>
+
+</select>
+<insert id="addRoleInfo" parameterType="RoleInfo" >
+insert  into  
+role
+     (roleId,
+     roleName,
+     authIds,
+     roleDescription,
+     delflag,
+     currentTime)
+ values
+     (#{roleId},
+      #{roleName},
+      #{authIds},
+      #{roleDescription},
+      #{delflag},
+      #{currentTime}
+      )
+
+
+</insert>
+
+<update id="updateRoleInfo"  parameterType="RoleInfo">
+  update 
+        role 
+  set 
+     
+        roleName=#{roleName},
+     
+        roleDescription=#{roleDescription}
+   where
+       roleId=#{roleId}
+        
+  </update>
+
+
+
+  
+  <update id="deleteRoleInfo" parameterType="String">
+  update 
+      role 
+  set 
+       delflag=1 
+  where roleId=#{roleId}
+  
+  </update>
+
+<update id="updateAuthIdByRoleId" parameterType="Map" >
+update 
+      role 
+set 
+     
+     authIds=#{authIds}
+   
+ where
+     roleId=#{roleId}
+
+</update>
+
+
+
+
+
+</mapper> 

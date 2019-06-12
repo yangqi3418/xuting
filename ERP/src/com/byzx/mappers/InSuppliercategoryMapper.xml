@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.InSuppliercategoryDao">
+
+	<resultMap type="InSuppliercategory" id="InSuppliercategoryResult">
+		<id property="inscid" column="inscid" />
+		<result property="insccode" column="insccode" />
+		<result property="inscname" column="inscname" />
+		<result property="remark" column="remark" />
+		<result property="state" column="state" />
+		<result property="delflag" column="delflag" />
+		<result property="optid" column="optid" />
+		<result property="optname" column="optname" />
+		<result property="optdeptid" column="optdeptid" />
+		<result property="optorgid" column="optorgid" />
+		<result property="currdate" column="currdate" />
+	</resultMap>
+<!-- 查询所有 -->
+	<select id="findAllSupplier" parameterType="Map"  resultMap="InSuppliercategoryResult">
+		
+		select
+			inscid,
+			insccode,
+			inscname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+			
+		from
+		    insuppliercategory
+		where
+		    delflag=0
+			<if test="inscname!=null">
+					and  inscname  like '%${inscname}%'
+			</if>
+            order by currdate desc
+		    limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	<!--根据id查讯所有  -->
+	<select id="findAllSupplierByInscid" resultMap="InSuppliercategoryResult" parameterType="Integer">
+		select
+			inscid,
+			insccode,
+			inscname,
+			remark,
+			state,
+			delflag,
+			optid,
+			optname,
+			optdeptid,
+			optorgid,
+			currdate
+			
+		from
+		    insuppliercategory
+		where
+		    delflag=0	
+		    and inscid=#{inscid}
+			
+	</select>
+	
+	 <select id="findAllSupplierCount" parameterType="Map" resultType="Integer">
+		
+		  select
+		
+		      count(*)
+		  from
+		      insuppliercategory
+		  where
+		      delflag=0
+		<if test="inscname!=null">
+		
+			  and inscname  like '%${inscname}%'
+	
+		</if>
+	<!-- 	and inscid=#{inscid} -->
+
+	</select> 
+	<insert id="addsupplier" parameterType="inSuppliercategory" >
+	     insert into 
+	         insuppliercategory(
+				         inscid,
+						insccode,
+						inscname,
+						remark,
+						state,
+						delflag,
+						optid,
+						optname,
+						optdeptid,
+						optorgid,
+						currdate
+						)
+				values(
+				        #{inscid},
+						#{insccode},
+						#{inscname},
+						#{remark},
+						#{state},
+						#{delflag},
+						#{optid},
+						#{optname},
+						#{optdeptid},
+						#{optorgid},
+						#{currdate}
+				)		
+	
+	</insert>
+	
+	<select id="findInsccodeNameExist" resultType="String" parameterType="String">
+  
+  select 
+         insccode 
+   from 
+         insuppliercategory  
+   where 
+         delflag=0
+    and 
+         insccode=#{insccode}
+  </select>
+  
+  	<select id="findsupplierNameExist" resultType="String" parameterType="String">
+  
+  select 
+         inscname 
+   from 
+         insuppliercategory  
+   where 
+         delflag=0
+    and 
+         inscname=#{inscname}
+  </select>
+  
+  <update id="updateSupplier" parameterType="InSuppliercategory">
+    update 
+    
+        insuppliercategory 
+   set 
+     
+      
+	    insccode=#{insccode},
+		inscname=#{inscname},
+		remark=#{remark}
+		
+	
+   where
+   
+        inscid=#{inscid}
+  
+  
+  </update>
+  
+   <update id="deletesupplier" parameterType="String">
+  update 
+      insuppliercategory 
+  set 
+       delflag=1 
+  where inscid=#{id}
+  
+  </update>
+  
+  	<insert id="addInSuppliercategory"  parameterType="InSuppliercategory"  >
+	insert  into 
+	 insuppliercategory(
+	                    inscid,
+						insccode,
+						inscname,
+						remark,
+						state,
+						delflag,
+						optid,
+						optname,
+						optdeptid,
+						optorgid,
+						currdate
+	                 )
+	             values(
+	                    #{inscid},
+						#{insccode},
+						#{inscname},
+						#{remark},
+						#{state},
+						#{delflag},
+						#{optid},
+						#{optname},
+						#{optdeptid},
+						#{optorgid},
+						#{currdate}
+	                  )
+	
+	
+  </insert>
+  
+
+  
+  
+
+</mapper> 

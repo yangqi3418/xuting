@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/default/easyui.css"/>
+	<link rel="stylesheet" type="text/css" href="../jquery-easyui-1.6.6/themes/icon.css"/>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="../jquery-easyui-1.6.6/locale/easyui-lang-zh_CN.js"></script>
+	
+	<script type="text/javascript">
+	
+	var addUrl="../authInfo/addAuthInfo.do";
+	var updateUrl="../authInfo/updateAuthInfo.do";
+	var curUrl="";
+	
+	//图标解析函数
+	function formatIconCls(value,row,index){
+		return "<div class="+value+">&nbsp;</div>";
+	}
+	//菜单添加
+	function openAuthAddDialog(){
+
+		var rows=$("#dg").treegrid("getSelected");
+		if(rows.length !=1){
+			$.messager.alert("提示信息","请选择菜单某个节点下添加 ","warning");
+			
+		}
+		var parentId=rows[0].authId;
+	
+		curUrl=addUrl;
+		$("#dlg").dialog("open").dialog("setTitle","添加菜单信息");
+		$("#authId").val(parentId);
+			
+		
+	}
+		
+		
+		//菜单管理 点击修改按钮触发事件
+		function openAuthModifyDialog(){
+			
+			var row=$("#dg").treegrid("getSelected");
+			$("#fm").form("load",row);
+			$("#dlg").dialog("open").dialog("setTitle","修改菜单信息");
+			curUrl=updateUrl;
+		}
+		
+		
+		//菜单管理 点击保存按钮触发事件(form表单)
+		function saveAuth(){
+			var row=$("#dg").treegrid("getSelected");
+			var parentId=row.authId;
+			$("#authId").val(parentId);
+			$("#fm").form("submit",{
+				url:curUrl,
+				onSubmit:function(){
+					return $(this).form("validate");
+				},
+				success:function(result){
+					var result=eval('('+result+')');
+					
+	 				if(result.msg){
+						$.messager.alert("系统提示","保存成功！","info");
+						$("#fm").form("clear");
+						$("#dg").treegrid("reload");
+						curUrl=""; 
+						closeAuthAddDialog();
+					}else{
+						$.messager.alert("系统提示","<font color=red>"+"系统繁忙"+"</font>","error");
+					}
+					
+				}
+
+			})
+		}
+		
+		
+		//菜单管理 点击删除按钮触发事件
+		function openAuthDeleteDialog(){
+			var row=$("#dg").treegrid("getSelected");
+			if("closed"==row.state){//删除的为父节点时
+				$.messager.confirm("系统提示","<font color=red>"+"您将删除『"+row.authName+"』及该菜单下的＂所有子节点＂,是否继续删除?"+"</font>",function(r){
+					if(r){
+						deleteAuthInfo(row.authId);
+					}
+				});
+			}else {//删除的为子节点时
+				$.messager.confirm("系统提示","<font color=red>"+"您是否确认删除『"+row.authName+"』该菜单信息?"+"</font>",function(r){
+					if(r){
+						deleteAuthInfo(row.authId);
+					}
+				});
+			}
+		}
+		
+		//菜单管理 确认删除菜单信息事件
+		function deleteAuthInfo(authId){
+			$.ajax({
+				url:"../authInfo/deleteAuthInfo.do",
+				type:"post",
+				data:{authId:authId},
+				dataType:"json",
+				success:function(result){
+					if(result.msg){
+						var row=$("#dg").treegrid("reload");
+						$.messager.alert("提示信息","删除成功","info");
+					}else {
+						$.messager.alert("提示信息","系统繁忙","error");
+					}
+				}
+			});
+		}
+		
+		
+		
+		
+		//菜单管理 点击关闭触发事件(添加菜单信息/修改菜单信息)
+		function closeAuthAddDialog(){
+			$("#dlg").dialog("clear");
+			$("#dlg").dialog("close");
+		}
+		
+	
+	
+	
+	
+	
+	</script>
+	
+	
+</head>
+<body style="margin: 1px;">
+
+<!-- 菜单管理界面加载列表 -->
+	<table id="dg" title="菜单管理" class="easyui-treegrid" fitColumns="true"
+		pagination="true" rownumbers="true" url="../authInfo/findAllAuthInfos.do"
+		fit="true" toolbar="#tb" data-options="idField:'authId',treeField:'authName'" >
+		<thead>
+			<tr>
+				<th field="cb" checkbox="true" align="center"></th>
+				<th field="authId" width="50" align="center">菜单编号</th>
+				<th field="authName" width="50" align="center">菜单名称</th>
+				<th field="iconCls" width="50" align="center" formatter="formatIconCls">图标</th>
+				<th field="authPath" width="50" align="center" >链接地址</th>
+				<th field="authDescription" width="50" align="center">备注</th>
+			</tr>
+		</thead>
+	</table>
+	
+	<!-- 用户管理界面 增删改工具按钮 -->
+	<div id="tb">
+		<div>
+			<a href="javascript:openAuthAddDialog()" class="easyui-linkbutton"
+				iconCls="icon-add" plain="true">添加</a> <a
+				href="javascript:openAuthModifyDialog()" class="easyui-linkbutton"
+				iconCls="icon-edit" plain="true">修改</a> <a
+				href="javascript:openAuthDeleteDialog()" class="easyui-linkbutton"
+				iconCls="icon-remove" plain="true">删除</a>
+		</div>
+		
+	
+	</div>
+	<!-- 用户添加数据表格 -->
+	<div id="dlg" class="easyui-dialog"
+		style="width: 570px; height: 350px; padding: 10px 20px" closed="true"
+		buttons="#dlg-buttons">
+		<form id="fm" method="post">
+			<table cellspacing="5px">
+				<p>
+					<input type="hidden" id="authId" name="authId" />
+				</p>
+				<tr>
+					<td>菜单名称：</td>
+					<td><input type="text" id="authName" name="authName"  
+						class="easyui-validatebox" required="true" /></td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td>图标：</td>
+					<td><input type="text" id="iconCls" name="iconCls"
+						class="easyui-validatebox" required="true" /></td>
+				</tr>
+				<tr>
+					<td>链接地址：</td>
+					<td><input type="text" id="authPath" name="authPath" 
+						 class="easyui-validatebox" required="true"  />
+					</td>
+					
+					
+				</tr>
+				<tr>
+					<td>备注：</td>
+					<td colspan="4"><textarea rows="7" cols="50"
+							name="authDescription" id="authDescription"></textarea></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<!-- 添加用户保存和关闭按钮 -->
+	<div id="dlg-buttons">
+	      <a href="javascript:saveAuth()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript: closeAuthAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+
+
+
+</body>
+</html>
